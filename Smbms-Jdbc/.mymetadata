@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="Smbms-Jdbc"
+  id="myeclipse.1514946766679"
+  context-root="/Smbms-Jdbc"
+  j2ee-spec="6.0"
+  archive="Smbms-Jdbc.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+

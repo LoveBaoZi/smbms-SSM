@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0 //EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.Dao.Users.UsersMapper">
+
+	<select id="getUsersByUserId" resultType="cn.smbms.Entity.Users">
+		select * from
+		smbms_user
+		where id=#{userid}
+	</select>
+
+	<!-- 登陆时候的方法，参数为用户名，及密码 -->
+	<select id="getUsersByPassword" resultType="cn.smbms.Entity.Users">
+		select * from
+		smbms_user
+		<where>
+			<if test="name != null">
+				and userCode = #{name}
+			</if>
+			<if test="password != null  ">
+				and userPassword = #{password}
+			</if>
+		</where>
+
+	</select>
+
+	<!-- 返回用户的角色名称，以及用户的信息 -->
+	<select id="getUsersList" resultMap="userList" parameterType="cn.smbms.Entity.Users">
+		SELECT
+		smbms_user.id,userCode,userName,gender,YEAR(NOW())-YEAR(smbms_user.birthday)
+		AS bir,phone,smbms_role.roleName FROM smbms_user
+		INNER JOIN smbms_role
+		ON smbms_user.userRole = smbms_role.id
+
+		<where>
+			<if test="userName  != null   and userName != '' ">
+				userName LIKE
+				CONCAT('%',#{userName},'%')
+			</if>
+			<if test="role != null   and role != 0  "> and smbms_user.userRole = #{role} </if>
+		</where>
+		LIMIT #{currpage},5
+	</select>
+
+	<select id="getUserCount" resultType="int">
+		SELECT
+		COUNT(smbms_user.id) FROM smbms_user
+		INNER JOIN smbms_role
+		ON
+		smbms_user.userRole =
+		smbms_role.id
+		<where>
+			<if test="  userName != null  and userName !=  '' ">
+				userName LIKE
+				CONCAT('%',#{userName},'%')
+			</if>
+			<if test="role != null   and role != 0 "> and smbms_user.userRole
+				= #{role}
+			</if>
+		</where>
+
+	</select>
+
+	<resultMap type="cn.smbms.Entity.Users" id="userList">
+		<id property="id" column="id" />
+		<result property="userCode" column="userCode" />
+		<result property="userName" column="userName" />
+		<result property="gender" column="gender" />
+		<result property="age" column="bir" />
+		<result property="phone" column="phone" />
+		<association property="role" javaType="cn.smbms.Entity.Role">
+			<result property="roleName" column="roleName" />
+		</association>
+	</resultMap>
+
+
+	<!-- 返回用户的角色信息的方法 -->
+	<select id="getUsersListByRoleId_Foreach_Array" resultMap="userRoleResult">
+		select u.*, r.id as
+		r_id,r.roleCode,r.roleName from
+		smbms_user
+		u,smbms_role r where
+		u.userRole = r.id and userRole in
+		<foreach collection="array" item="roleIds" open="(" separator=","
+			close=")">
+			#{roleIds}
+		</foreach>
+	</select>
+
+
+	<select id="getUserListByRoleIdAndGender" resultMap="userRoleResult">
+		select u.*, r.id as
+		r_id,r.roleCode,r.roleName from
+		smbms_user
+		u,smbms_role r where
+		u.userRole = r.id and `gender` = #{sex} and
+		userRole in
+		<foreach collection="roleids" item="roleIds" open="("
+			separator="," close=")">
+			#{roleIds}
+		</foreach>
+	</select>
+	<resultMap type="cn.smbms.Entity.Users" id="userRoleResult">
+		<id property="id" column="id" />
+		<result property="userCode" column="userCode" />
+		<result property="userName" column="userName" />
+		<result property="userRole" column="userRole" />
+		<association property="role" javaType="cn.smbms.Entity.Role">
+			<result property="roleName" column="roleName" />
+		</association>
+	</resultMap>
+
+	<!-- 返回用户地址的方法 -->
+	<select id="getAddressListByUserId" resultMap="getAddressListByUserId"
+		parameterType="int">
+		select u.*,a.id as
+		a_id,a.contact,a.addressDesc,a.postCode,a.tel
+		from smbms_user
+		u,smbms_address a
+		where u.id = a.userId and u.id = #{userid}
+	</select>
+	<resultMap type="cn.smbms.Entity.Users" id="getAddressListByUserId">
+		<id property="id" column="id" />
+		<result property="userCode" column="userCode" />
+		<result property="userName" column="userName" />
+		<collection property="addressList" ofType="cn.smbms.Entity.Address">
+			<id property="id" column="a_id" />
+			<result property="postCode" column="postCode" />
+			<result property="tel" column="tel" />
+			<result property="contact" column="contact" />
+			<result property="addressDesc" column="addressDesc" />
+		</collection>
+	</resultMap>
+
+	<!-- 新增用户的方法 -->
+	<insert id="add" parameterType="cn.smbms.Entity.Users">
+		insert into smbms_user
+		(userCode,userName,userPassword,gender,birthday,phone,address,userRole,createdBy,creationDate,idPicPath,workPicPath)
+		value
+		(#{userCode},#{userName},#{userPassword},#{gender},#{birthday},#{phone},#{address},#{userRole},#{createdBy},#{creationDate},#{idPicPath},#{workPicPath});
+	</insert>
+
+
+	<!-- 修改用户的方法 -->
+	<update id="update" parameterType="cn.smbms.Entity.Users">
+		UPDATE smbms_user SET
+		userName=#{userName},
+		gender=#{gender},
+		birthday=#{birthday},phone=#{phone},address=#{address},
+		userRole=#{userRole},modifyBy=#{modifyBy},
+		modifyDate=#{modifyDate}
+		where id=#{id}
+	</update>
+
+	<!-- 修改用户密码的方法 -->
+	<update id="updatePassWordByUserid">
+		update smbms_user set
+		userPassword = #{userPassWord}
+		where id=#{id}
+	</update>
+
+	<!-- 删除用户的方法 -->
+	<delete id="deleteUserByUserId">
+		delete from smbms_user where id=#{id}
+	</delete>
+</mapper>

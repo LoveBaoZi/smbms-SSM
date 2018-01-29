@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0 //EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.Dao.Provider.ProviderMapper">
+
+
+	<select id="getProviderList" resultType="cn.smbms.Entity.Provider">
+		SELECT
+		id,proCode,proName,proContact,proPhone,proFax,creationDate
+		FROM
+		smbms_provider
+		where 1=1
+		<choose>
+			<when test="proCode != null   and  proCode != ''">
+				and proCode
+				LIKE CONCAT('%',#{proCode},'%')
+			</when>
+			<when test="proName != null  and  proName != ''">
+				and proName
+				LIKE CONCAT('%',#{proName},'%')
+			</when>
+			<when test="proContact != null   and  proContact != ''">
+				and proContact LIKE CONCAT('%',#{proContact},'%')
+			</when>
+			<when test="creationDate != null  and  creationDate != ''">
+				and
+				proCode LIKE CONCAT('%',#{proCode},'%')
+			</when>
+		</choose>
+
+	</select>
+
+	<select id="getProviderListByCodeAndName" resultType="cn.smbms.Entity.Provider">
+		SELECT
+		id,proCode,proName,proContact,proPhone,proFax,creationDate
+		FROM
+		smbms_provider
+		where 1=1
+		<if test="proCode != null   and  proCode != ''   ">
+			and proCode
+			LIKE CONCAT('%',#{proCode},'%')
+		</if>
+		<if test="proName != null  and  proName != ''  ">
+			and proName
+			LIKE CONCAT('%',#{proName},'%')
+		</if>
+		LIMIT #{currpage},5
+	</select>
+
+
+	<select id="ProviderCount" resultType="int">
+		select count(1) from
+		smbms_provider
+		where 1=1
+		<if test="proCode != null   and  proCode != ''   ">
+			and proCode
+			LIKE CONCAT('%',#{proCode},'%')
+		</if>
+		<if test="proName != null  and  proName != ''  ">
+			and proName
+			LIKE CONCAT('%',#{proName},'%')
+		</if>
+	</select>
+
+
+	<insert id="InsertIntoNewProvider" parameterType="cn.smbms.Entity.Provider">
+		insert into
+		smbms_provider(proCode,proName,proDesc,proContact,proPhone,proAddress,proFax,createdBy,creationDate,modifyDate,modifyBy)
+		value
+		(#{proCode},#{proName},#{proDesc},#{proContact},#{proPhone},#{proAddress},#{proFax},#{createdBy},#{creationDate},NULL,NULL)
+	</insert>
+	<update id="updateProvider" parameterType="cn.smbms.Entity.Provider">
+		update
+		smbms_provider
+		set
+		proCode=#{proCode},proName=#{proName},proDesc=#{proDesc},proContact=#{proContact},proPhone=#{proPhone},proAddress=#{proAddress},proFax=#{proFax},modifyDate=#{modifyDate},modifyBy=#{modifyBy}
+		where id=#{id}
+	</update>
+	<delete id="deleteProvider">
+		delete from smbms_provider where id=#{id}
+	</delete>
+</mapper>

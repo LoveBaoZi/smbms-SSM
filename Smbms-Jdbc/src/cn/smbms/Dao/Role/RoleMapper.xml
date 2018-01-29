@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0 //EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.Dao.Role.RoleMapper">
+	<select id="getAllRole" resultType="cn.smbms.Entity.Role">
+		SELECT * FROM
+		smbms_role
+	</select>
+	<insert id="insertIntoNewRole" parameterType="cn.smbms.Entity.Role">
+		INSERT INTO
+		`smbms_role`(`roleCode`,`roleName`,`createdBy`,`creationDate`,`modifyBy`,`modifyDate`)
+		VALUE (#{roleCode},#{roleName},#{createdBy},#{creationDate},
+		NULL,NULL);
+	</insert>
+	<update id="udpateRole" parameterType="cn.smbms.Entity.Role">
+		UPDATE
+		`smbms_role` SET
+		`roleCode`=#{roleCode},`roleName`=#{roleName},`modifyBy`=#{modifyBy},`modifyDate`=#{modifyDate}
+		WHERE `id`=#{id}
+	</update>
+	<select id="selectUserCountByRoleId" resultType="int">
+		SELECT
+		COUNT(`id`)
+		FROM `smbms_user` WHERE `userRole` =#{roleId}
+	</select>
+	<delete id="deleteRole">
+		DELETE FROM `smbms_role` WHERE `id` = #{roleId}
+	</delete>
+</mapper>
